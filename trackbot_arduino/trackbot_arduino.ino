@@ -2,6 +2,7 @@
 #include <SPI.h>
 #include <WiFi.h>
 #include <WiFiUdp.h>
+#include <Stepper.h>
 
 int status = WL_IDLE_STATUS;
 char ssid[] = "yourNetwork";      // your network SSID (name)
@@ -12,6 +13,12 @@ unsigned int localPort = 5005;    // local port to listen on
 
 char packetBuffer[255];                 //buffer to hold incoming packet
 char  ReplyBuffer[] = "acknowledged";   // a string to send back
+
+String packetBuffer_s;
+int xDelta = 0;
+int yDelta = 0;
+const int stepsPerRevolution = 200;   // Change this to fit the stepper used
+Stepper xStepper(stepsPerRevolution, 8, 9, 10, 11);   // Change pins accordingly
 
 WiFiUDP Udp;
 
@@ -50,6 +57,9 @@ void setup() {
   Serial.println("\nStarting connection to server...");
   // if you get a connection, report back via serial:
   Udp.begin(localPort);
+
+  // Set stepper motor RPM
+  xStepper.setSpeed(50);
 }
 
 void loop() {
@@ -73,6 +83,26 @@ void loop() {
     Serial.println("Contents:");
     Serial.println(packetBuffer);
 
+    // Set xDelta and yDelta from the received packet data
+    int div = 0;
+    for (int i = 0; i <= 255; i++) {
+      if (packetBuffer[i] == ',') {
+        div = i;
+        break;
+      }
+    }    
+    packetBuffer_s = String(packetBuffer);
+    xDelta = packetBuffer_s.substring(0, div).toInt();
+    yDelta = packetBuffer_s.substring(div).toInt();
+
+    // Send commands to the motor accordingly to xDelta and yDelta
+    if (xDelta > 0) {
+      xStepper.step(1);
+    } else if (xDelta < 0) {
+      xStepper.step(-1);
+    }
+
+    
     // send a reply, to the IP address and port that sent us the packet we received
     Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
     Udp.write(ReplyBuffer);
