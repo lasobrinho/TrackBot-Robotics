@@ -3,13 +3,22 @@ import numpy as np
 import socket
 
 def sendUDPpackage(message):
-	UDP_IP = "192.168.0.50"
-	UDP_PORT = 5005
+	UDP_IP = "192.168.0.51"
+	UDP_PORT = 8888
 	# print "UDP target IP:", UDP_IP
 	# print "UDP target port:", UDP_PORT
 	# print "message:", message
 	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 	sock.sendto(message, (UDP_IP, UDP_PORT))
+
+def receiveUDPpackage():
+	UDP_PORT = 8888
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	s.bind(("", UDP_PORT))
+	while 1:
+		data, addr = s.recvfrom(1024)
+		print data
+		return data
 
 def show_webcam(mirror=False):
 	face_cascade = cv2.CascadeClassifier('/Users/lucas/opencv/data/haarcascades/haarcascade_frontalface_default.xml')
@@ -46,6 +55,9 @@ def show_webcam(mirror=False):
 		if message == None:
 			message = '0,0'
 		sendUDPpackage(message)
+		if receiveUDPpackage() != "acknowledged":
+			print("Error: receiveUDPpackage() != \"acknowledged\"")
+			return
 
 		if cv2.waitKey(1) == 27: 
 			break  # esc to quit
