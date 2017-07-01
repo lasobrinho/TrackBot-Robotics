@@ -3,7 +3,7 @@ import numpy as np
 import socket
 
 def sendUDPpackage(message):
-	UDP_IP = "192.168.0.51"
+	UDP_IP = "192.168.1.3"
 	UDP_PORT = 8888
 	# print "UDP target IP:", UDP_IP
 	# print "UDP target port:", UDP_PORT

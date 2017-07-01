@@ -24,7 +24,7 @@
 byte mac[] = {
   0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED
 };
-IPAddress ip(192, 168, 0, 51);
+IPAddress ip(192, 168, 1, 3);
 
 unsigned int localPort = 8888;      // local port to listen on
 
@@ -38,8 +38,9 @@ EthernetUDP Udp;
 String packetBuffer_s;
 int xDelta = 0;
 int yDelta = 0;
-const int stepsPerRevolution = 200;   // Change this to fit the stepper used
-Stepper xStepper(stepsPerRevolution, 8, 9, 10, 11);   // Change pins accordingly
+int threshold = 50;
+const int stepsPerRevolution = 48;   // Change this to fit the stepper used
+Stepper xStepper(stepsPerRevolution, 6, 7, 8, 9);   // Change pins accordingly
 
 void setup() {
   // start the Ethernet and UDP:
@@ -56,51 +57,6 @@ void setup() {
 
 
 void loop() {
-
-//  // if there's data available, read a packet
-//  int packetSize = Udp.parsePacket();
-//  if (packetSize) {
-//    Serial.print("Received packet of size ");
-//    Serial.println(packetSize);
-//    Serial.print("From ");
-//    IPAddress remoteIp = Udp.remoteIP();
-//    Serial.print(remoteIp);
-//    Serial.print(", port ");
-//    Serial.println(Udp.remotePort());
-//
-//    // read the packet into packetBufffer
-//    int len = Udp.read(packetBuffer, 255);
-//    if (len > 0) {
-//      packetBuffer[len] = 0;
-//    }
-//    Serial.println("Contents:");
-//    Serial.println(packetBuffer);
-//
-//    // Set xDelta and yDelta from the received packet data
-//    int div = 0;
-//    for (int i = 0; i <= 255; i++) {
-//      if (packetBuffer[i] == ',') {
-//        div = i;
-//        break;
-//      }
-//    }    
-//    packetBuffer_s = String(packetBuffer);
-//    xDelta = packetBuffer_s.substring(0, div).toInt();
-//    yDelta = packetBuffer_s.substring(div).toInt();
-//
-//    // Send commands to the motor accordingly to xDelta and yDelta
-//    if (xDelta > 0) {
-//      xStepper.step(1);
-//    } else if (xDelta < 0) {
-//      xStepper.step(-1);
-//    }
-//
-//    
-//    // send a reply, to the IP address and port that sent us the packet we received
-//    Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-//    Udp.write(ReplyBuffer);
-//    Udp.endPacket();
-//  }
 
   // if there's data available, read a packet
   int packetSize = Udp.parsePacket();
@@ -137,13 +93,13 @@ void loop() {
     Serial.println("xDelta: ");
     Serial.println(xDelta);
     yDelta = packetBuffer_s.substring(div).toInt();
-    Serial.println("yDelta: ");
-    Serial.println(yDelta);
+    // Serial.println("yDelta: ");
+    // Serial.println(yDelta);
 
     // Send commands to the motor accordingly to xDelta and yDelta
-    if (xDelta > 0) {
+    if (xDelta > threshold) {
       xStepper.step(1);
-    } else if (xDelta < 0) {
+    } else if (xDelta < (threshold * -1)) {
       xStepper.step(-1);
     }
 
@@ -152,6 +108,6 @@ void loop() {
     Udp.write(ReplyBuffer);
     Udp.endPacket();
   }
-  delay(10);  
+  delay(10);
 }
 
