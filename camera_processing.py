@@ -3,6 +3,7 @@ import zbar
 from PIL import Image
 import numpy as np
 import socket
+from camera import VideoCamera
 
 def sendUDPpackage(message, ip, port):
 	UDP_IP = ip
@@ -22,27 +23,26 @@ def receiveUDPpackage(port):
 		print data
 		return data
 
-def show_webcam(ip, port=8888, feature='qrcode', mirror=False, hw_test=False):
+def process_video(ip, port=8888, camera = 0, feature='qrcode', hw_test=False):
 
 	scanner = zbar.ImageScanner()
 	scanner.parse_config('enable')
 	face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
 
-	cam = cv2.VideoCapture(0)
+	cam = VideoCamera()
+
 	while True:
 		message = None
 		rect_center = None
 		detection = False
 
-		ret_val, img = cam.read()
-		if mirror: 
-			img = cv2.flip(img, 1)
+		ret_val, img = cam.get_frame()
 		gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 		center = (img.shape[1]/2, img.shape[0]/2)
 		cv2.circle(img, center, 3, (0, 255, 0), 1)
 
-		if feature == 'faces':
+		if feature == 'face':
 			faces = face_cascade.detectMultiScale(gray, 1.3, 5)
 
 			for (x, y, w, h) in faces:
@@ -88,21 +88,18 @@ def show_webcam(ip, port=8888, feature='qrcode', mirror=False, hw_test=False):
 					print("Error: receiveUDPpackage() != \"acknowledged\"")
 					return
 
-		cv2.imshow('img',img)
+		# cv2.imshow('img', img)
+		# if cv2.waitKey(1) == ord('q'): 
+		# 	break  # esc to quit
+		ret_enc, jpeg = cv2.imencode('.jpg', img)
+		return jpeg.tobytes()
 
-		if cv2.waitKey(1) == ord('q'): 
-			break  # esc to quit
+	# cv2.destroyAllWindows()
 
-	cv2.destroyAllWindows()
+# def main():
+# 	process_video(ip='192.168.1.13')
 
-def main():
-	show_webcam(ip='192.168.1.13')
-
-
-if __name__ == '__main__':
-	main()
-
-
-
+# if __name__ == '__main__':
+# 	main()
 
 
