@@ -16,12 +16,22 @@ HTTP/1.0 200 OK
         <meta charset="utf8">
     </head>
     <body>
+
         <h1>TrackBot v1.0</h1>
-        <p>Redirecting to TrackBot Manager...</p>
+        <div class="form-group">
+            <label for="webcam_ip">Please type your IP Webcam address: </label>
+            <input type="text" class="form-control" id="webcam_ip">
+            <button type="button" class="btn btn-success" id="start_button">Start TrackBot</button>
+        </div>
 
         <script>
-        	window.location.replace('http://localhost:5000/?webcam_ip={}')
+            var start_button = document.getElementById('start_button');
+            var webcam_ip = document.getElementById('webcam_ip').value;
+            start_button.addEventListener('click', function(event) {
+                window.location.href = "http://localhost:5000/?webcam_ip=" + webcam_ip;
+            });
         </script>
+
     </body>
 </html>
 """
@@ -92,6 +102,7 @@ def start():
             host = p.domain[:-1]
             # print('Replying: {:s} -> {:s}'.format(p.domain, ip))
         except:
+            pass
             # print("No dgram")
 
         # Web loop
