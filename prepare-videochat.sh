@@ -120,10 +120,12 @@
 set -e
 
 if [ -n "$1" ]; then
-    FLIP_METHOD=$1
+    CAM_IP_ADDRESS=$1
 else
-    FLIP_METHOD=none
+    CAM_IP_ADDRESS=none
 fi
+
+FLIP_METHOD=none
 
 GST_FLIP="! videoflip method=\"$FLIP_METHOD\" "
 if [ $FLIP_METHOD = 'none' ]; then
@@ -149,7 +151,8 @@ ADB_FLAGS=
 # IP_VERSION=4
 
 # IP used by the phone in your wireless network
-WIFI_IP=192.168.0.13
+# WIFI_IP=192.168.0.13
+WIFI_IP=$CAM_IP_ADDRESS
 
 # Port on which IP Webcam is listening
 PORT=8080
@@ -422,7 +425,7 @@ fi
 # Decide whether to connect through USB or through wi-fi
 IP=$WIFI_IP
 if ! can_run "$ADB"; then
-    warning "adb is not available: you'll have to use Wi-Fi, which will be slower. Next time, please install the Android SDK from developer.android.com/sdk or install adb package in Ubuntu"
+    echo "adb is not available: you'll have to use Wi-Fi, which will be slower. Next time, please install the Android SDK from developer.android.com/sdk or install adb package in Ubuntu"
 else
     while ! phone_plugged && ! confirm "adb is available, but the phone is not plugged in. Are you sure you want to use Wi-Fi (slower)?\nIf you don't, please connect your phone to USB and allow usb debugging under developer settings."; do
         true
@@ -565,7 +568,7 @@ elif [ $CAPTURE_STREAM = v ]; then
 else
     error "Incorrect CAPTURE_STREAM value ($CAPTURE_STREAM). Should be a, v or av."
 fi
-info "$MESSAGE You can now open your videochat app."
+# info "$MESSAGE You can now open your videochat app."
 
 echo "Press enter to end stream"
 perl -e '<STDIN>'
