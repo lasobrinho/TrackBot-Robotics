@@ -4,6 +4,7 @@ from flask import Flask, render_template, Response, request
 import camera_processing
 import time
 import socket, json, sys
+import urllib
 
 app = Flask(__name__)
 webcam_ip = ''
@@ -24,8 +25,11 @@ def gen():
 	global webcam_ip
 	s.connect((host, port))
 
+	url = 'http://{}:{}/video'.format(webcam_ip, str(8080))
+	stream = urllib.urlopen(url)
+
 	while True:
-		cmd, frame = camera_processing.process_video(webcam_ip=webcam_ip)
+		cmd, frame = camera_processing.process_video(stream)
 		if cmd:
 			sendJSON(cmd, s)
 		yield (b'--frame\r\n'

@@ -20,24 +20,34 @@ def receiveUDPpackage(port):
 		print data
 		return data
 
-def get_frame(webcam_ip, webcam_port):
-	url = 'http://{}:{}/shot.jpg'.format(webcam_ip, str(webcam_port))
-	req = urllib.urlopen(url)
-	arr = np.asarray(bytearray(req.read()), dtype=np.uint8)
-	img = cv2.imdecode(arr, -1)
-	return img
+bytes = bytes()
+
+def get_frame(stream):
+	global bytes
+	bytes += stream.read(1024)
+	a = bytes.find(b'\xff\xd8')
+	b = bytes.find(b'\xff\xd9')
+	if a != -1 and b != -1:
+		jpg = bytes[a:b+2]
+		bytes = bytes[b+2:]
+		img = cv2.imdecode(np.fromstring(jpg, dtype=np.uint8), cv2.IMREAD_COLOR)
+		return img
+	return None
+	
 
 scanner = zbar.ImageScanner()
 scanner.parse_config('enable')
 face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
 
-def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787, feature='qrcode', hw_test=False):
+def process_video(stream, tb_ip='192.168.4.1', tb_port=8787, feature='qrcode', hw_test=False):
 
 	message = None
 	rect_center = None
 	detection = False
 
-	img = get_frame(webcam_ip, webcam_port)
+	img = get_frame(stream)
+	while img == None:
+		img = get_frame(stream)
 	gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 	center = (img.shape[1]/2, img.shape[0]/2)
@@ -63,7 +73,12 @@ def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787
 		
 		for symbol in image:
 			detection = True
-			cv2.rectangle(img, symbol.location[0], symbol.location[2], (255, 0, 0), 2)
+			try:
+				cv2.rectangle(img, symbol.location[0], symbol.location[2], (255, 0, 0), 2)
+			except:
+				print("cv2.Rectangle tuple error, skipping...")
+				detection = False
+				break
 			x = symbol.location[0][0]
 			y = symbol.location[0][1]
 			w = symbol.location[2][0] - symbol.location[0][0]
