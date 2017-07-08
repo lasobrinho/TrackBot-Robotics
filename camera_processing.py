@@ -27,11 +27,11 @@ def get_frame(webcam_ip, webcam_port):
 	img = cv2.imdecode(arr, -1)
 	return img
 
-def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787, feature='qrcode', hw_test=False):
+scanner = zbar.ImageScanner()
+scanner.parse_config('enable')
+face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
 
-	scanner = zbar.ImageScanner()
-	scanner.parse_config('enable')
-	face_cascade = cv2.CascadeClassifier('/usr/local/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml')
+def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787, feature='qrcode', hw_test=False):
 
 	message = None
 	rect_center = None
@@ -73,10 +73,13 @@ def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787
 			cv2.line(img, center, rect_center, (0, 255, 0))
 			break
 
+	cmd = {}
 	if detection:
 		x_distance = center[0] - rect_center[0]
 		y_distance = center[1] - rect_center[1]
 		message = str(x_distance) + ',' + str(y_distance)
+		cmd['delta_x'] = x_distance
+		cmd['delta_y'] = y_distance
 
 		if hw_test:
 			# Send UDP package with the cmd message
@@ -88,4 +91,4 @@ def process_video(webcam_ip, webcam_port=8080, tb_ip='192.168.4.1', tb_port=8787
 				return
 
 	ret_enc, jpeg = cv2.imencode('.jpg', img)
-	return jpeg.tobytes()
+	return cmd, jpeg.tobytes()

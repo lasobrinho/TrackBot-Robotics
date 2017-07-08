@@ -14,7 +14,7 @@ def start_server():
 	s.listen(5)
 
 	c, addr = s.accept()
-	print('connection from', addr)
+	print('Connection from', addr)
 
 	while True:
 		m = c.recv(1024)
@@ -23,10 +23,7 @@ def start_server():
 		board_led(0)
 		cmd = json.loads(m)
 		delta_x, delta_y = cmd['delta_x'], cmd['delta_y']
-		print(delta_x, delta_y)
-		res = {'ack': 1}
-		ack = json.dumps(res)
-		c.sendall(ack)
 		board_led(1)
 
 	c.close()
+

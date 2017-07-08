@@ -15,7 +15,7 @@ HTTP/1.0 200 OK
 		<h1>TrackBot v1.0</h1>
 		<div class="form-group">
 			<label for="webcam_ip">Please type your IP Webcam address: </label>
-			<input type="text" class="form-control" id="webcam_ip">
+			<input type="text" class="form-control" id="webcam_ip" value="192.168.4.">
 			<button type="button" class="btn btn-success" id="start_button">Start TrackBot</button>
 		</div>
 
