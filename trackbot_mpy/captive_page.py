@@ -26,8 +26,8 @@ HTTP/1.0 200 OK
 
         <script>
             var start_button = document.getElementById('start_button');
-            var webcam_ip = document.getElementById('webcam_ip').value;
             start_button.addEventListener('click', function(event) {
+                var webcam_ip = document.getElementById('webcam_ip').value;
                 window.location.href = "http://localhost:5000/?webcam_ip=" + webcam_ip;
             });
         </script>
@@ -107,11 +107,13 @@ def start():
 
         # Web loop
         # print("before accept...")
-        print(host)
+        # print(host)
         if host != 'mytrackbot.io':
-        	print('Skipping: datagram is not for mytrackbot.io')
+        	# print('Skipping: datagram is not for mytrackbot.io')
         	time.sleep_ms(500)
         	continue
+        else:
+            print('Accepting datagram for mytrackbot.io')
 
         try:
             res = s.accept()
@@ -132,7 +134,7 @@ def start():
                 print(h)
 
             # client_stream.write(CONTENT.format(ai[:-1] + '3'))
-            client_stream.write(CONTENT.format('192.168.0.13'))
+            client_stream.write(CONTENT)
 
             client_stream.close()
             counter += 1
