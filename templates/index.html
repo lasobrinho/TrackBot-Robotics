@@ -3,49 +3,61 @@
 <html lang="en">
  
 <head>
-    <title>TrackBot Manager</title>
+	<title>TrackBot Manager</title>
 
-    <link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+	<link href="{{ url_for('static', filename='css/bootstrap.css') }}" rel="stylesheet">
+	<script src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+	<script src="{{ url_for('static', filename='js/socket.io.slim.js') }}"></script>
+	<script type="text/javascript" charset="utf-8">
+		var socket = io.connect('http://' + document.domain + ':' + location.port);
+	</script>
 </head>
  
 <body>
  
-    <div class="container-fluid">
-        <div class="header">
-            <h3 class="text-muted">TrackBot Manager</h3>
-        </div>
+	<div class="container-fluid">
+		<div class="header">
+			<h3 class="text-muted">TrackBot Manager</h3>
+		</div>
  
-        <div class="row">
-            <div class="col-sm-9">
-                <h4>Camera Live Feed</h4>
-                <img id="bg" src="{{ url_for('video_feed') }}" class="img-responsive">
-            </div>
+		<div class="row">
+			<div class="col-sm-9">
+				<h4>Camera Live Feed</h4>
+				<img id="bg" src="{{ url_for('video_feed') }}" class="img-responsive">
+			</div>
  
-            <div class="col-sm-3">            	
-            		<div class="col-sm-12">
-            			<h4>Config</h4>
-            			<p>Detection Type</p>
-            			<div class="checkbox">
-  							<label><input type="checkbox" value="">QR Code</label>
-						</div>
-						<div class="checkbox">
-							<label><input type="checkbox" value="">Face</label>
-						</div>
-						<div class="checkbox disabled">
-							<label><input type="checkbox" value="" disabled>Body</label>
-						</div>
-            		</div>
-            	</div>
-            </div>
-        </div>
+			<div class="col-sm-3">            	
+					<div class="col-sm-12">
+						<h4>Config</h4>
+						<p>Detection Type</p>
+						<button type="button" value="qrcode" id="btn_qrcode" class="btn btn-success">QR Code</button>
+						<button type="button" value="face" id="btn_face" class="btn btn-default">Face</button>
+					</div>
+				</div>
+			</div>
+		</div>
  
-        <footer class="footer" style="margin-top: 25px;">
-            <p class="text-center" style="margin-bottom: 0px;">Lucas A. Sobrinho · Alan Ruani</p>
-            <p class="text-center">&copy; 2017</p>
-        </footer>
+		<footer class="footer" style="margin-top: 25px;">
+			<p class="text-center" style="margin-bottom: 0px;">Lucas A. Sobrinho · Alan Ruani</p>
+			<p class="text-center">&copy; 2017</p>
+		</footer>
  
-    </div>
+	</div>
 
+	<script type="text/javascript">
+		$(document).ready(function(){
+			$("#btn_qrcode").click(function(){
+				socket.emit('change_detection_type', {detectionType: 'qrcode'});
+				$(this).removeClass().addClass("btn btn-success");
+				$("#btn_face").removeClass().addClass("btn btn-default");
+			});
+			$("#btn_face").click(function(){
+				socket.emit('change_detection_type', {detectionType: 'face'});
+				$(this).removeClass().addClass("btn btn-success");
+				$("#btn_qrcode").removeClass().addClass("btn btn-default");
+			});
+		});
+	</script>
 
 </body>
  

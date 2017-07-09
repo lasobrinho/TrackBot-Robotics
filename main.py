@@ -5,9 +5,14 @@ import camera_processing
 import time
 import socket, json, sys
 import urllib
+from flask_socketio import SocketIO
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'mysecretkeyqwerty'
+socketio = SocketIO(app)
+
 webcam_ip = ''
+detectionType = 'qrcode'
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host, port = '192.168.4.1', 8787
 
@@ -29,12 +34,11 @@ def gen():
 	stream = urllib.urlopen(url)
 
 	while True:
-		cmd, frame = camera_processing.process_video(stream)
+		cmd, frame = camera_processing.process_video(stream, feature=detectionType)
 		if cmd:
 			sendJSON(cmd, s)
 		yield (b'--frame\r\n'
 			   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-
 	s.close()
 
 @app.route('/video_feed')
@@ -42,5 +46,10 @@ def video_feed():
 	return Response(gen(),
 					mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@socketio.on('change_detection_type')
+def handle_change_detection_type(json):
+	global detectionType
+	detectionType = json['detectionType']
+
 if __name__ == '__main__':
-	app.run(host='0.0.0.0', debug=True)
+	socketio.run(app)
