@@ -13,8 +13,15 @@ socketio = SocketIO(app)
 
 webcam_ip = ''
 detectionType = 'qrcode'
+detect = 'stop_detection'
+detectToggle = {
+	'start_detection': True,
+	'stop_detection': False
+}
+
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host, port = '192.168.4.1', 8787
+s.connect((host, port))
 
 @app.route('/')
 def index():
@@ -28,13 +35,13 @@ def sendJSON(cmd, s):
 
 def gen():
 	global webcam_ip
-	s.connect((host, port))
+	global s
 
 	url = 'http://{}:{}/video'.format(webcam_ip, str(8080))
 	stream = urllib.urlopen(url)
 
 	while True:
-		cmd, frame = camera_processing.process_video(stream, feature=detectionType)
+		cmd, frame = camera_processing.process_video(stream, feature=detectionType, detect=detectToggle[detect])
 		if cmd:
 			sendJSON(cmd, s)
 		yield (b'--frame\r\n'
@@ -50,6 +57,18 @@ def video_feed():
 def handle_change_detection_type(json):
 	global detectionType
 	detectionType = json['detectionType']
+
+@socketio.on('detection_toggle')
+def handle_detection_toggle(json):
+	global detect
+	detect = json['detect']
+
+@socketio.on('move_command')
+def handle_move_command(json):
+	global s
+	cmd = {}
+	cmd['command'] = json['command']
+	sendJSON(cmd, s)
 
 if __name__ == '__main__':
 	socketio.run(app)

@@ -11,50 +11,92 @@
 	<script type="text/javascript" charset="utf-8">
 		var socket = io.connect('http://' + document.domain + ':' + location.port);
 	</script>
+	<style type="text/css">
+		.btn-detection, #btn_detection_toggle, .btn-ctrl {
+			width: 95px;
+			margin-bottom: 3px
+		}
+	</style>
 </head>
  
 <body>
  
-	<div class="container-fluid">
+	<div class="container">
 		<div class="header">
 			<h3 class="text-muted">TrackBot Manager</h3>
 		</div>
- 
+ 		<br>
 		<div class="row">
-			<div class="col-sm-9">
-				<h4>Camera Live Feed</h4>
-				<img id="bg" src="{{ url_for('video_feed') }}" class="img-responsive">
+			<div class="col-sm-9" style="background-color: #111">
+				<img id="bg" src="{{ url_for('video_feed') }}" class="img-responsive center-block">
 			</div>
  
-			<div class="col-sm-3">            	
+			<div class="col-sm-3">
 					<div class="col-sm-12">
-						<h4>Config</h4>
-						<p>Detection Type</p>
-						<button type="button" value="qrcode" id="btn_qrcode" class="btn btn-success">QR Code</button>
-						<button type="button" value="face" id="btn_face" class="btn btn-default">Face</button>
+						<h3>Configuration</h3>
+						<h5>Tracking Status</h5>
+						<div class="col-sm-12">
+							<button type="button" value="start_detection" id="btn_detection_toggle" class="btn btn-success">Start</button>
+						</div>
+						<h5>Detection Type</h5>
+						<div class="col-sm-12">
+							<button type="button" value="qrcode" id="btn_qrcode" class="btn btn-success btn-detection">QR Code</button>
+							<button type="button" value="face" id="btn_face" class="btn btn-default btn-detection">Face</button>
+							<button type="button" value="upperbody" id="btn_upperbody" class="btn btn-default btn-detection">Upper Body</button>
+							<button type="button" value="fullbody" id="btn_fullbody" class="btn btn-default btn-detection">Full Body</button>
+						</div>
+						<h5>Manual Controls</h5>
+						<div class="col-sm-12">
+							<button type="button" value="move_left" id="btn_ctrl_left" class="btn btn-primary btn-ctrl">Move Left</button>
+							<button type="button" value="move_right" id="btn_ctrl-right" class="btn btn-primary btn-ctrl">Move Right</button>
+						</div>
 					</div>
 				</div>
 			</div>
 		</div>
- 
-		<footer class="footer" style="margin-top: 25px;">
-			<p class="text-center" style="margin-bottom: 0px;">Lucas A. Sobrinho · Alan Ruani</p>
-			<p class="text-center">&copy; 2017</p>
-		</footer>
+ 		<br>
+		<div class="navbar navbar-fixed-bottom">
+			<div class="container">
+				<p class="text-center" style="margin-bottom: 0px;">Lucas A. Sobrinho · Alan Ruani</p>
+				<p class="text-center">&copy; 2017</p>
+			</div>
+		</div>
  
 	</div>
 
 	<script type="text/javascript">
-		$(document).ready(function(){
-			$("#btn_qrcode").click(function(){
-				socket.emit('change_detection_type', {detectionType: 'qrcode'});
-				$(this).removeClass().addClass("btn btn-success");
-				$("#btn_face").removeClass().addClass("btn btn-default");
+		$(document).ready(function() {
+			lastDetectionType = "qrcode";
+			$(".btn-detection").removeClass().addClass("btn btn-default btn-detection disabled");
+			$(".btn-detection").click(function() {
+				if($(this).hasClass("active")){
+					value = $(this).val();
+					lastDetectionType = value;
+					socket.emit('change_detection_type', {detectionType: value});
+					$(".btn-detection").removeClass().addClass("btn btn-default btn-detection active");
+					$(this).removeClass().addClass("btn btn-success btn-detection active");
+				}
 			});
-			$("#btn_face").click(function(){
-				socket.emit('change_detection_type', {detectionType: 'face'});
-				$(this).removeClass().addClass("btn btn-success");
-				$("#btn_qrcode").removeClass().addClass("btn btn-default");
+			$("#btn_detection_toggle").click(function(){
+				value = $(this).val();
+				socket.emit('detection_toggle', {detect: value});
+				if (value == "start_detection") {
+					$(this).removeClass().addClass("btn btn-danger");
+					$(this).val("stop_detection");
+					$(this).html("Stop");
+					$(".btn-detection").removeClass().addClass("btn btn-default btn-detection active");
+					$("#btn_" + lastDetectionType).removeClass().addClass("btn btn-success btn-detection active");
+				}
+				if (value == "stop_detection") {
+					$(this).removeClass().addClass("btn btn-success");
+					$(this).val("start_detection");
+					$(this).html("Start");
+					$(".btn-detection").removeClass().addClass("btn btn-default btn-detection disabled");
+				}
+			});
+			$(".btn-ctrl").click(function() {
+				value = $(this).val();
+				socket.emit('move_command', {command: value});
 			});
 		});
 	</script>
