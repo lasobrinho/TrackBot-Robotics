@@ -10,21 +10,70 @@ HTTP/1.0 200 OK
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf8">
 	</head>
+	<style>
+		body {
+			font-family: verdana;
+			margin: auto;
+			width: 42%;
+			color: #444;
+			font-size: 15px;
+		}
+		h1 {
+			color: #777;
+			text-align: center;
+			font-weight: 400;
+		}
+		ol {
+			line-height: 24px;
+		}
+		.form {
+			text-align: center;
+		}
+		#webcam_ip {
+			width: 120px;
+			height: 15px;
+			font-size: 15px;
+			text-align: center;
+			border: 1px solid #FFF;
+			border-bottom-color: #BBB;
+			color: #444;
+		}
+		#start_button {
+			margin-top: 15px;
+			width: 150px;
+			height: 32px;
+			border: 1px solid;
+			border-color: #4cae4c;
+			font-size: 14px;
+			line-height: 1.42857143;
+			color: #FFF;
+			border-radius: 4px;
+			background-color: #5cb85c;
+		}
+		.divider {
+			background-color: #DDD;
+			height: 1px;
+		}
+	</style>
 	<body>
 
 		<h1>TrackBot v1.0</h1>
+		<div class="divider"></div>
 		<div>
 			<ol>
-				<li>Install IP Webcam app from Google Play</li>
+				<li>Execute the <b>TrackBot Server</b> in your computer</li>
 				<li>Connect your phone to the WiFi network named <b>TrackBot WiFi</b> (password: <u>mytrackbot</u>)</li>
-				<li>Open IP Webcam app and start the server</li>
-				<li>Get the <b>IP address</b> for you IP Webcam server</li>
-				<li>Enter the <b>IP address</b> in the field below and click <b>Start TrackBot</b></li>
-				<li>All set! The TrackBot management page will appear automatically.</li>
+				<li>Install and open IP Webcam app and start the server</li>
+				<li>Get the <b>IP address</b> from your IP Webcam app</li>
+				<li>Enter the <b>IP address</b> from IP Webcam app in the field below</li>
+				<li>Click <b>Start TrackBot</b></li>
+				<li>All set! The TrackBot management page will appear automatically!</li>
 			</ul>
 		</div>
 		<br>
-		<div>
+		<div class="divider"></div>
+		<br>
+		<div class="form">
 			Please enter your IP Webcam address: 
 			<input type="text" id="webcam_ip" value="192.168.4.3">
 			<br>
@@ -73,6 +122,7 @@ def show():
 		client_stream.write(CONTENT)
 
 		client_stream.close()
+		s.close()
 		print('Web server closed...')
 		print('--------------------------------------------------------------------------------')
 		print()
