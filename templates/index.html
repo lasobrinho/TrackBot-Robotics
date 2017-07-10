@@ -99,6 +99,10 @@
 				socket.emit('move_command', {command: value});
 			});
 		});
+
+		window.addEventListener("beforeunload", function (e) {
+			socket.emit('disconnect', 1);
+		});
 	</script>
 
 </body>

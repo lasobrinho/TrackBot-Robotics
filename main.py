@@ -46,7 +46,6 @@ def gen():
 			sendJSON(cmd, s)
 		yield (b'--frame\r\n'
 			   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-	s.close()
 
 @app.route('/video_feed')
 def video_feed():
@@ -69,6 +68,10 @@ def handle_move_command(json):
 	cmd = {}
 	cmd['command'] = json['command']
 	sendJSON(cmd, s)
+
+@socketio.on('disconnect')
+def handle_disconnect():
+	s.close()
 
 if __name__ == '__main__':
 	socketio.run(app)
