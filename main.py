@@ -23,6 +23,8 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host, port = '192.168.4.1', 8787
 s.connect((host, port))
 
+commandThreshold = 15
+
 @app.route('/')
 def index():
 	global webcam_ip
@@ -43,7 +45,8 @@ def gen():
 	while True:
 		cmd, frame = camera_processing.process_video(stream, feature=detectionType, detect=detectToggle[detect])
 		if cmd:
-			sendJSON(cmd, s)
+			if cmd['delta_x'] > commandThreshold:
+				sendJSON(cmd, s)
 		yield (b'--frame\r\n'
 			   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
 

@@ -2,7 +2,7 @@ import socket
 import sys
 import json
 import machine
-# from stepper import Stepper
+from stepper import Stepper
 
 boardLed = machine.Pin(2, machine.Pin.OUT)
 boardLed(1)
@@ -22,8 +22,8 @@ def start_server():
 	print('Connection from', addr)
 	print()
 
-	# stepper = Stepper()
-	# stepper.setLoopDelay_ms(100)
+	stepper = Stepper(64, [14, 12, 13, 15])
+	stepper.setSpeed(50)
 
 	while True:
 		m = c.recv(1024)
@@ -37,19 +37,15 @@ def start_server():
 		if 'command' in cmd:
 			manualCommand = cmd['command']
 			if manualCommand == 'move_left':
-				pass
-				# stepper.step(-1)
+				stepper.step(-1)
 			if manualCommand == 'move_right':
-				pass
-				# stepper.step(1)
+				stepper.step(1)
 		else:
 			deltaX, deltaY = cmd['delta_x'], cmd['delta_y']
 			if deltaX > 0:
-				pass
-				# stepper.step(1)
+				stepper.step(1)
 			else:
-				pass
-				# stepper.step(-1)
+				stepper.step(-1)
 		boardLed(1)
 
 	c.close()

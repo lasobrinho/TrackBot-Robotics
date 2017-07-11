@@ -5,21 +5,6 @@ import numpy as np
 import socket
 import urllib
 
-def sendUDPpackage(message, ip, port):
-	UDP_IP = ip
-	UDP_PORT = port
-	sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	sock.sendto(message, (UDP_IP, UDP_PORT))
-
-def receiveUDPpackage(port):
-	UDP_PORT = port
-	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-	s.bind(("", UDP_PORT))
-	while 1:
-		data, addr = s.recvfrom(1024)
-		print data
-		return data
-
 bytes = bytes()
 
 def get_frame(stream):
@@ -103,15 +88,6 @@ def process_video(stream, tb_ip='192.168.4.1', tb_port=8787, detect=True, featur
 		message = str(x_distance) + ',' + str(y_distance)
 		cmd['delta_x'] = x_distance
 		cmd['delta_y'] = y_distance
-
-		# if hw_test:
-		# 	# Send UDP package with the cmd message
-		# 	if message == None:
-		# 		message = '0,0'
-		# 	sendUDPpackage(message, tb_ip, tb_port)
-		# 	if receiveUDPpackage(tb_port) != "acknowledged":
-		# 		print("Error: receiveUDPpackage() != \"acknowledged\"")
-		# 		return
 
 	ret_enc, jpeg = cv2.imencode('.jpg', img)
 	return cmd, jpeg.tobytes()
