@@ -18,25 +18,25 @@ class Stepper:
 
 	def stepMotor(self, thisStep):
 		if thisStep == 0:
-			self.pin1.value(1)
-			self.pin2.value(0)
-			self.pin3.value(1)
-			self.pin4.value(0)
+			self.pin1.on()
+			self.pin2.on()
+			self.pin3.off()
+			self.pin4.off()
 		if thisStep == 1:
-			self.pin1.value(0)
-			self.pin2.value(1)
-			self.pin3.value(1)
-			self.pin4.value(0)
+			self.pin1.off()
+			self.pin2.on()
+			self.pin3.on()
+			self.pin4.off()
 		if thisStep == 2:
-			self.pin1.value(0)
-			self.pin2.value(1)
-			self.pin3.value(0)
-			self.pin4.value(1)
+			self.pin1.off()
+			self.pin2.off()
+			self.pin3.on()
+			self.pin4.on()
 		if thisStep == 3:
-			self.pin1.value(1)
-			self.pin2.value(0)
-			self.pin3.value(0)
-			self.pin4.value(1)
+			self.pin1.on()
+			self.pin2.off()
+			self.pin3.off()
+			self.pin4.on()
 
 	def step(self, stepsToMove):
 		stepsLeft = abs(stepsToMove)
@@ -59,3 +59,4 @@ class Stepper:
 
 			self.stepMotor(self.stepNumber % 4)
 			time.sleep(self.stepDelay)
+
