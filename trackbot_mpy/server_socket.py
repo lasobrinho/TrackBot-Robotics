@@ -1,6 +1,6 @@
-import socket
+import usocket
 import sys
-import json
+import ujson
 import machine
 from stepper import Stepper
 
@@ -8,7 +8,7 @@ boardLed = machine.Pin(2, machine.Pin.OUT)
 boardLed(1)
 
 def start_server():
-	s = socket.socket()
+	s = usocket.socket()
 
 	host, port = '0.0.0.0', 8787
 	s.bind((host, port))
@@ -30,7 +30,7 @@ def start_server():
 		if not m:
 			break
 		try: 
-			cmd = json.loads(m)
+			cmd = ujson.loads(m)
 			boardLed(0)
 		except:
 			continue
@@ -41,7 +41,8 @@ def start_server():
 			if manualCommand == 'move_right':
 				stepper.step(1)
 		else:
-			deltaX, deltaY = cmd['delta_x'], cmd['delta_y']
+			deltaX = cmd['delta_x']
+			# deltaY = cmd['delta_y']
 			if deltaX > 0:
 				stepper.step(1)
 			else:
