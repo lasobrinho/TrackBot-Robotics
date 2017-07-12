@@ -4,6 +4,7 @@
 import gc
 import webrepl
 import network
+import machine
 webrepl.start()
 gc.collect()
-# sta_if, ap_if = network.WLAN(network.STA_IF), network.WLAN(network.AP_IF)
+machine.freq(160000000)
