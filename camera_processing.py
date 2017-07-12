@@ -84,10 +84,10 @@ def process_video(stream, tb_ip='192.168.4.1', tb_port=8787, detect=True, featur
 
 	if detection:
 		x_distance = center[0] - rect_center[0]
-		y_distance = center[1] - rect_center[1]
-		message = str(x_distance) + ',' + str(y_distance)
+		# y_distance = center[1] - rect_center[1]
+		# message = str(x_distance) + ',' + str(y_distance)
 		cmd['delta_x'] = x_distance
-		cmd['delta_y'] = y_distance
+		# cmd['delta_y'] = y_distance
 
 	ret_enc, jpeg = cv2.imencode('.jpg', img)
 	return cmd, jpeg.tobytes()

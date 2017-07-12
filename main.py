@@ -23,13 +23,23 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 host, port = '192.168.4.1', 8787
 s.connect((host, port))
 
-commandThreshold = 15
+commandThreshold = 25
+sendCounter = 0
+sendFreq = 50
+minSendFreq = 10
 
 @app.route('/')
 def index():
 	global webcam_ip
 	webcam_ip = str(request.args.get('webcam_ip'))
 	return render_template('index.html')
+
+def adjustSendCounter(absDeltaX):
+	global sendFreq
+	absDiff = abs(commandThreshold - absDeltaX)
+	sendFreq = 50 - absDiff
+	if sendFreq < minSendFreq:
+		sendFreq = minSendFreq
 
 def sendJSON(cmd, s):
 	m = json.dumps(cmd)
@@ -38,17 +48,23 @@ def sendJSON(cmd, s):
 def gen():
 	global webcam_ip
 	global s
+	global sendCounter
 
 	url = 'http://{}:{}/video'.format(webcam_ip, str(8080))
 	stream = urllib.urlopen(url)
 
 	while True:
 		cmd, frame = camera_processing.process_video(stream, feature=detectionType, detect=detectToggle[detect])
-		if cmd:
-			if cmd['delta_x'] > commandThreshold:
-				sendJSON(cmd, s)
 		yield (b'--frame\r\n'
 			   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
+		if sendCounter % sendFreq == 0:
+			if cmd:
+				absDeltaX = abs(cmd['delta_x'])
+				if absDeltaX > commandThreshold:
+					adjustSendCounter(absDeltaX)
+					sendJSON(cmd, s)
+					sendCounter = 0
+		sendCounter += 1
 
 @app.route('/video_feed')
 def video_feed():
