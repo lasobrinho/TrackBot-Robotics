@@ -20,13 +20,13 @@ detectToggle = {
 }
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-host, port = '192.168.4.1', 8787
+host, port = '192.168.1.20', 8787
 s.connect((host, port))
 
-commandThreshold = 25
+commandThreshold = 20
 sendCounter = 0
 sendFreq = 50
-minSendFreq = 10
+minSendFreq = 8
 
 @app.route('/')
 def index():
@@ -57,11 +57,10 @@ def gen():
 		cmd, frame = camera_processing.process_video(stream, feature=detectionType, detect=detectToggle[detect])
 		yield (b'--frame\r\n'
 			   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n\r\n')
-		if sendCounter % sendFreq == 0:
-			if cmd:
-				absDeltaX = abs(cmd['delta_x'])
-				if absDeltaX > commandThreshold:
-					adjustSendCounter(absDeltaX)
+		if cmd:
+			absDeltaX = abs(cmd['delta_x'])
+			adjustSendCounter(absDeltaX)
+			if (sendCounter % sendFreq == 0) and (absDeltaX > commandThreshold):
 					sendJSON(cmd, s)
 					sendCounter = 0
 		sendCounter += 1
