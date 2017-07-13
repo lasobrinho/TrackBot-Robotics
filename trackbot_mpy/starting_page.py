@@ -75,7 +75,7 @@ HTTP/1.0 200 OK
 		<br>
 		<div class="form">
 			Please enter your IP Webcam address: 
-			<input type="text" id="webcam_ip" value="192.168.4.3">
+			<input type="text" id="webcam_ip" value="192.168.1.22">
 			<br>
 			<button type="button" id="start_button">Start TrackBot</button>
 		</div>

@@ -4,7 +4,9 @@
 import gc
 import webrepl
 import network
-import machine
+
 webrepl.start()
 gc.collect()
-machine.freq(160000000)
+
+sta = network.WLAN(network.STA_IF)
+sta.ifconfig(('192.168.1.20', '255.255.255.0', '192.168.1.1', '192.168.1.1'))
